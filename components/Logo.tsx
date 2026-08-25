@@ -7,7 +7,7 @@ export default function Logo({ size = 40 }: { size?: number }) {
       alt="Logo"
       width={size}
       height={size}
-      className="object-contain"
+      className="site-logo object-contain"
       priority
     />
   );

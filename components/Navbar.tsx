@@ -3,18 +3,19 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun, Menu, X } from "lucide-react";
-import Logo from "@/components/Logo";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const navLinks = [
-  { href: "#anasayfa", label: "Anasayfa" },
-  { href: "#hakkimda", label: "Hakkımda" },
-  { href: "#projeler", label: "Projeler" },
-  { href: "#deneyim", label: "Deneyim" },
-  { href: "#iletisim", label: "İletişim" },
+  { href: "#anasayfa", tr: "Anasayfa", en: "Home" },
+  { href: "#hakkimda", tr: "Hakkımda", en: "About" },
+  { href: "#projeler", tr: "Projeler", en: "Projects" },
+  { href: "#deneyim", tr: "Deneyim", en: "Experience" },
+  { href: "#iletisim", tr: "İletişim", en: "Contact" },
 ];
 
 export default function Navbar() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,26 +35,18 @@ export default function Navbar() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       scrolled
-        ? "bg-[#0c0c0c]/95 dark:bg-[#0c0c0c]/95 border-b border-white/5 backdrop-blur-md"
+        ? "bg-white/90 dark:bg-[#0c0c0c]/95 border-b border-black/10 dark:border-white/5 backdrop-blur-md"
         : "bg-transparent"
     }`}>
       <div className="max-w-4xl mx-auto px-6 flex items-center justify-between h-14">
-        <button
-          onClick={() => go("#anasayfa")}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-          aria-label="Anasayfa"
-        >
-          <Logo size={28} />
-        </button>
-
         <div className="hidden md:flex items-center gap-1">
           {navLinks.map((l) => (
             <button
               key={l.href}
               onClick={() => go(l.href)}
-              className="px-3 py-1.5 text-sm text-gray-400 hover:text-white transition-colors rounded-md hover:bg-white/5"
+              className="px-3 py-1.5 text-sm text-slate-700 dark:text-gray-100 hover:text-slate-900 dark:hover:text-white transition-colors rounded-md hover:bg-white/5"
             >
-              {l.label}
+              {language === "tr" ? l.tr : l.en}
             </button>
           ))}
         </div>
@@ -61,16 +54,25 @@ export default function Navbar() {
         <div className="flex items-center gap-1">
           {mounted && (
             <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+              onClick={toggleLanguage}
+              className="px-2 py-1.5 rounded-md text-xs font-semibold text-slate-700 dark:text-gray-100 hover:text-slate-900 dark:hover:text-white hover:bg-white/5 transition-colors"
+              aria-label={language === "tr" ? "Switch to English" : "Türkçeye geç"}
+            >
+              {language === "tr" ? "EN" : "TR"}
+            </button>
+          )}
+          {mounted && (
+            <button
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              className="p-2 rounded-md text-slate-700 dark:text-gray-100 hover:text-slate-900 dark:hover:text-white hover:bg-white/5 transition-colors"
               aria-label="Tema değiştir"
             >
-              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+              {resolvedTheme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
             </button>
           )}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="md:hidden p-2 rounded-md text-slate-700 dark:text-gray-100 hover:text-slate-900 dark:hover:text-white hover:bg-white/5 transition-colors"
           >
             {menuOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
@@ -78,14 +80,14 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="md:hidden border-t border-white/5 bg-[#0c0c0c]/95 backdrop-blur-md">
+        <div className="md:hidden border-t border-white/5 bg-white/95 dark:bg-[#0c0c0c]/95 backdrop-blur-md">
           {navLinks.map((l) => (
             <button
               key={l.href}
               onClick={() => go(l.href)}
-              className="block w-full text-left px-6 py-3 text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+              className="block w-full text-left px-6 py-3 text-sm text-gray-200 dark:text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
             >
-              {l.label}
+              {language === "tr" ? l.tr : l.en}
             </button>
           ))}
         </div>

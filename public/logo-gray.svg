@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 382 310">
+  <defs>
+    <filter id="gray" color-interpolation-filters="sRGB">
+      <feColorMatrix type="saturate" values="0" />
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="0.62" intercept="0.22" />
+        <feFuncG type="linear" slope="0.62" intercept="0.22" />
+        <feFuncB type="linear" slope="0.62" intercept="0.22" />
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <image href="/logo.png" width="382" height="310" filter="url(#gray)" preserveAspectRatio="xMidYMid meet" />
+</svg>

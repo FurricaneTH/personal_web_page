@@ -3,7 +3,7 @@
 const skillCategories = [
   {
     title: "Programlama Dilleri",
-    color: "blue",
+    color: "slate",
     skills: [
       { name: "Python", level: 80, emoji: "🐍" },
       { name: "Java", level: 65, emoji: "☕" },
@@ -41,21 +41,21 @@ const skillCategories = [
 ];
 
 const colorMap: Record<string, string> = {
-  blue: "bg-blue-600",
+  slate: "bg-slate-600",
   indigo: "bg-indigo-600",
   purple: "bg-purple-600",
   cyan: "bg-cyan-600",
 };
 
 const bgColorMap: Record<string, string> = {
-  blue: "bg-blue-100 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800",
+  slate: "bg-slate-100 dark:bg-slate-900/20 border-slate-200 dark:border-slate-700",
   indigo: "bg-indigo-100 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800",
   purple: "bg-purple-100 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800",
   cyan: "bg-cyan-100 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800",
 };
 
 const titleColorMap: Record<string, string> = {
-  blue: "text-blue-700 dark:text-blue-300",
+  slate: "text-slate-700 dark:text-slate-300",
   indigo: "text-indigo-700 dark:text-indigo-300",
   purple: "text-purple-700 dark:text-purple-300",
   cyan: "text-cyan-700 dark:text-cyan-300",
@@ -70,13 +70,13 @@ export default function Skills() {
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <p className="text-blue-600 dark:text-blue-400 font-semibold text-sm uppercase tracking-widest mb-2">
+          <p className="text-slate-600 dark:text-slate-300 font-semibold text-sm uppercase tracking-widest mb-2">
             Neler Yapabilirim
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Teknik Beceriler
           </h2>
-          <div className="w-16 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mx-auto" />
+          <div className="w-16 h-1 bg-gradient-to-r from-slate-500 to-slate-300 rounded-full mx-auto" />
         </div>
 
         <div className="grid sm:grid-cols-2 gap-8">
@@ -122,7 +122,7 @@ export default function Skills() {
             {["IntelliJ IDEA", "MySQL Workbench", "Linux", "REST API", "HTML5 Canvas", "Web Audio API", "OOP", "Veri Yapıları"].map((tag) => (
               <span
                 key={tag}
-                className="px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-default"
+                className="px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-default"
               >
                 {tag}
               </span>
