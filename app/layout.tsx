@@ -7,18 +7,18 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Muhammed Furkan Çatak | Software Engineer",
-  description: "Muhammed Furkan Çatak — Software Engineer, Computer Engineering student, and builder of thoughtful software and intelligent systems.",
+  title: "Furkan Çatak",
+  description: "Furkan Çatak — Bilgisayar Mühendisliği öğrencisi, yapay zeka ve yazılım geliştirme alanlarında üretir.",
   keywords: ["Furkan Çatak", "Software Engineer", "portfolio", "Python", "JavaScript", "AI"],
   authors: [{ name: "Muhammed Furkan Çatak" }],
   openGraph: {
-    title: "Muhammed Furkan Çatak | Software Engineer",
-    description: "Software Engineer building thoughtful software and intelligent systems.",
+    title: "Furkan Çatak",
+    description: "Furkan Çatak — Yapay zeka, veri analizi ve yazılım geliştirme.",
     type: "website",
   },
   icons: {
-    icon: "/logo-gray.svg",
-    shortcut: "/logo-gray.svg",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
   },
 };
 
