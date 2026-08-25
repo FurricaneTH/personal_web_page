@@ -29,7 +29,25 @@ export default function Navbar() {
 
   const go = (href: string) => {
     setMenuOpen(false);
-    document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+    const target = document.querySelector(href) as HTMLElement | null;
+    if (!target) return;
+
+    const start = window.scrollY;
+    const end = Math.max(0, target.getBoundingClientRect().top + start - 28);
+    const distance = end - start;
+    const duration = 760;
+    const startedAt = performance.now();
+
+    const animate = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const eased = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      window.scrollTo({ top: start + distance * eased, behavior: "auto" });
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+
+    requestAnimationFrame(animate);
   };
 
   return (
