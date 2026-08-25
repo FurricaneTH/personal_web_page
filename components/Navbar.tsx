@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -19,6 +19,7 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const scrollAnimation = useRef<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -27,12 +28,40 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (scrollAnimation.current !== null) cancelAnimationFrame(scrollAnimation.current);
+    };
+  }, []);
+
   const go = (href: string) => {
     setMenuOpen(false);
     const target = document.querySelector(href) as HTMLElement | null;
     if (!target) return;
-    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 36);
-    window.scrollTo({ top, behavior: "smooth" });
+
+    if (scrollAnimation.current !== null) cancelAnimationFrame(scrollAnimation.current);
+    const start = window.scrollY;
+    const end = Math.max(0, target.getBoundingClientRect().top + start - 36);
+    const distance = end - start;
+    const duration = 1050;
+    const startedAt = performance.now();
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+
+    const animate = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const eased = 0.5 - Math.cos(progress * Math.PI) / 2;
+      window.scrollTo({ top: start + distance * eased, behavior: "auto" });
+      if (progress < 1) {
+        scrollAnimation.current = requestAnimationFrame(animate);
+      } else {
+        scrollAnimation.current = null;
+        root.style.scrollBehavior = previousScrollBehavior;
+      }
+    };
+
+    scrollAnimation.current = requestAnimationFrame(animate);
   };
 
   return (
