@@ -11,6 +11,7 @@ const navLinks = [
   { href: "#projeler", tr: "Projeler", en: "Projects" },
   { href: "#deneyim", tr: "Deneyim", en: "Experience" },
   { href: "#iletisim", tr: "İletişim", en: "Contact" },
+  { href: "/news", tr: "Haberler", en: "News" },
 ];
 
 export default function Navbar() {
@@ -36,8 +37,15 @@ export default function Navbar() {
 
   const go = (href: string) => {
     setMenuOpen(false);
+    if (href.startsWith("/")) {
+      window.location.href = href;
+      return;
+    }
     const target = document.querySelector(href) as HTMLElement | null;
-    if (!target) return;
+    if (!target) {
+      if (href.startsWith("#")) window.location.href = `/${href}`;
+      return;
+    }
 
     if (scrollAnimation.current !== null) cancelAnimationFrame(scrollAnimation.current);
     const start = window.scrollY;
