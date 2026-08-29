@@ -70,7 +70,7 @@ export default function Navbar() {
         ? "bg-white/90 dark:bg-[#0c0c0c]/95 border-b border-black/10 dark:border-white/5 backdrop-blur-md"
         : "bg-transparent"
     }`}>
-      <div className="max-w-4xl mx-auto px-6 flex items-center justify-between h-14">
+      <div className="max-w-4xl mx-auto px-6 flex items-center justify-center h-14 relative">
         <div className="hidden md:flex items-center gap-1">
           {navLinks.map((l) => (
             <button
@@ -83,7 +83,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 md:absolute md:right-6">
           {mounted && (
             <button
               onClick={toggleLanguage}
