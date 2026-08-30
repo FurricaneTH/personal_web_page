@@ -8,7 +8,9 @@ const topicWeights: Record<string, number> = {
   "machine learning": 8, openai: 8, model: 5, neural: 6, agent: 6,
   robotics: 4, data: 2, software: 1,
 };
-const strongAiTopics = Object.keys(topicWeights).filter((topic) => topic !== "data" && topic !== "software");
+const strongAiTopics = [
+  "ai", "artificial intelligence", "machine learning", "deep learning", "llm", "large language model", "rag", "genai", "generative ai", "agent", "openai", "anthropic", "claude", "gemini", "llama", "mistral", "transformer", "diffusion", "embedding", "inference", "fine-tun", "neural", "robotics", "autonomous", "copilot", "gpu", "model training", "benchmark", "foundation model",
+];
 
 function isAiRelevant(title: string) {
   const lower = title.toLowerCase();
@@ -66,15 +68,18 @@ async function aiRank(stories: HackerStory[]): Promise<number[]> {
     const ids = JSON.parse(raw.match(/\[[\s\S]*?\]/)?.[0] || "[]");
     const valid = ids.filter((id: unknown): id is number => typeof id === "number" && candidates.some((s) => s.id === id));
     if (valid.length >= 3) {
-      const remaining = [...stories]
+      const remaining = [...candidates]
         .sort((a, b) => keywordScore(b.title) - keywordScore(a.title) || (b.score ?? 0) - (a.score ?? 0))
-        .filter((story) => isAiRelevant(story.title))
         .filter((story) => !valid.includes(story.id))
         .map((story) => story.id);
-      return [...valid, ...remaining].slice(0, 5);
+      const technologyFallback = stories.filter((story) => !isAiRelevant(story.title) && /\b(software|developer|programming|code|computing|tech|data|database|web|github|linux|cloud|chip|semiconductor|security)\b/i.test(story.title)).sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).map((story) => story.id);
+      return [...valid, ...remaining, ...technologyFallback].slice(0, 5);
     }
   } catch { /* deterministic fallback below */ }
-  return [...stories].filter((story) => isAiRelevant(story.title)).sort((a, b) => keywordScore(b.title) - keywordScore(a.title) || (b.score ?? 0) - (a.score ?? 0)).slice(0, 5).map((s) => s.id);
+  const relevant = [...stories].filter((story) => isAiRelevant(story.title)).sort((a, b) => keywordScore(b.title) - keywordScore(a.title) || (b.score ?? 0) - (a.score ?? 0));
+  // HN may have fewer than five explicit AI headlines; fill only with the strongest technology stories, never random lifestyle/news posts.
+  const fallbackPool = [...stories].filter((story) => !isAiRelevant(story.title) && /\b(software|developer|programming|code|computing|tech|data|database|web|github|linux|cloud|chip|semiconductor|security)\b/i.test(story.title)).sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  return [...relevant, ...fallbackPool].slice(0, 5).map((s) => s.id);
 }
 
 export async function fetchAndSummarizeNews(): Promise<Omit<NewsItem, "id" | "created_at">[]> {

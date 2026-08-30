@@ -10,9 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function NewsPage() {
   let initialNews: NewsItem[] = [];
   try {
-    const latest = await getLatestNews();
-    const cutoff = Date.now() - 48 * 60 * 60 * 1000;
-    initialNews = latest.filter((item) => new Date(item.published_at ?? item.created_at).getTime() >= cutoff);
+    initialNews = await getLatestNews(10);
   } catch { /* The client displays a useful empty state. */ }
   return <main><BackgroundTrees /><Navbar /><NewsClient initialNews={initialNews} /><Footer /></main>;
 }
