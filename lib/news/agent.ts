@@ -51,7 +51,7 @@ async function openAI(input: string): Promise<string> {
   return data.output_text || data.output?.flatMap((item: { content?: { text?: string }[] }) => item.content ?? []).map((item: { text?: string }) => item.text ?? "").join(" ") || "Özet oluşturulamadı.";
 }
 
-async function aiRank(stories: HackerStory[]) {
+async function aiRank(stories: HackerStory[]): Promise<number[]> {
   try {
     const prompt = `Aşağıdaki Hacker News başlıklarından AI, LLM, RAG, generative AI ve makine öğrenmesiyle en ilgili 5 tanesini seç. Yalnızca seçtiğin haberlerin ID'lerini JSON dizi olarak döndür (örnek: [123,456]). Genel teknoloji haberlerini ancak AI bağlantısı varsa seç.\n${stories.map((s) => `${s.id}: ${s.title}`).join("\n")}`;
     const raw = await openAI(prompt);
