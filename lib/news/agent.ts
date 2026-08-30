@@ -70,9 +70,9 @@ export async function fetchAndSummarizeNews(): Promise<Omit<NewsItem, "id" | "cr
   const sourceTexts = await Promise.all(selected.map((story) => articleText(story.url || `https://news.ycombinator.com/item?id=${story.id}`)));
   return Promise.all(selected.map(async (story, index) => {
     const articleUrl = story.url || `https://news.ycombinator.com/item?id=${story.id}`;
-    let summary = `Bu haberin başlığı: ${story.title}. Ayrıntılı içerik için orijinal makaleyi inceleyebilirsiniz.`;
+    let summary = `Bu haber, ${story.title} başlığıyla güncel bir teknoloji gelişmesini ele alıyor. Haberin temel konusu ve olası etkileri hakkında daha fazla bağlam için orijinal makaleyi inceleyebilirsiniz. Ayrıntılar, kaynak makaledeki teknik açıklamalara göre değişebilir.`;
     try {
-      summary = await openAI(`Bu teknoloji haberini Türkçe 2-3 cümleyle, tarafsız ve anlaşılır biçimde özetle. Yalnızca özeti yaz; başlık, madde işareti veya kaynak ekleme.\nBaşlık: ${story.title}\nMakale metni:\n${sourceTexts[index] || "Makale metni alınamadı; başlıktan güvenli bir özet çıkar."}`);
+      summary = await openAI(`Bu teknoloji haberini Türkçe, tarafsız ve anlaşılır biçimde yaklaşık 4-6 cümleyle özetle. Özet; haberin bağlamını, ana gelişmeyi, teknik veya pratik önemini ve varsa olası etkilerini açıklasın. Yalnızca özeti yaz; başlık, madde işareti, kaynak veya "makale" ifadesi ekleme. Metinde olmayan ayrıntıları uydurma.\nBaşlık: ${story.title}\nMakale metni:\n${sourceTexts[index] || "Makale metni alınamadı; başlıktan güvenli ve temkinli bir özet çıkar."}`);
     } catch { /* keep fallback summary */ }
     return {
       hacker_news_id: story.id,
