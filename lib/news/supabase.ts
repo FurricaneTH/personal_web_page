@@ -28,6 +28,12 @@ export async function getLatestNews(limit = 10): Promise<NewsItem[]> {
   return response.json();
 }
 
+export async function getNewsById(id: string): Promise<NewsItem | null> {
+  const response = await request(`news?id=eq.${encodeURIComponent(id)}&select=*&limit=1`);
+  const items: NewsItem[] = await response.json();
+  return items[0] ?? null;
+}
+
 export async function upsertNews(items: Omit<NewsItem, "id" | "created_at">[]) {
   if (!items.length) return;
   await request("news?on_conflict=hacker_news_id", {
