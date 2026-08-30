@@ -57,7 +57,13 @@ async function aiRank(stories: HackerStory[]): Promise<number[]> {
     const raw = await openAI(prompt);
     const ids = JSON.parse(raw.match(/\[[\s\S]*?\]/)?.[0] || "[]");
     const valid = ids.filter((id: unknown): id is number => typeof id === "number" && stories.some((s) => s.id === id));
-    if (valid.length >= 3) return valid.slice(0, 5);
+    if (valid.length >= 3) {
+      const remaining = [...stories]
+        .sort((a, b) => keywordScore(b.title) - keywordScore(a.title) || (b.score ?? 0) - (a.score ?? 0))
+        .filter((story) => !valid.includes(story.id))
+        .map((story) => story.id);
+      return [...valid, ...remaining].slice(0, 5);
+    }
   } catch { /* deterministic fallback below */ }
   return [...stories].sort((a, b) => keywordScore(b.title) - keywordScore(a.title) || (b.score ?? 0) - (a.score ?? 0)).slice(0, 5).map((s) => s.id);
 }
@@ -72,7 +78,7 @@ export async function fetchAndSummarizeNews(): Promise<Omit<NewsItem, "id" | "cr
     const articleUrl = story.url || `https://news.ycombinator.com/item?id=${story.id}`;
     let summary = `Bu haber, ${story.title} başlığıyla güncel bir teknoloji gelişmesini ele alıyor. Haberin temel konusu ve olası etkileri hakkında daha fazla bağlam için orijinal makaleyi inceleyebilirsiniz. Ayrıntılar, kaynak makaledeki teknik açıklamalara göre değişebilir.`;
     try {
-      summary = await openAI(`Bu teknoloji haberini Türkçe, tarafsız ve anlaşılır biçimde yaklaşık 4-6 cümleyle özetle. Özet; haberin bağlamını, ana gelişmeyi, teknik veya pratik önemini ve varsa olası etkilerini açıklasın. Yalnızca özeti yaz; başlık, madde işareti, kaynak veya "makale" ifadesi ekleme. Metinde olmayan ayrıntıları uydurma.\nBaşlık: ${story.title}\nMakale metni:\n${sourceTexts[index] || "Makale metni alınamadı; başlıktan güvenli ve temkinli bir özet çıkar."}`);
+      summary = await openAI(`Bu teknoloji haberini Türkçe, tarafsız ve anlaşılır biçimde 80-120 kelime arasında, yaklaşık 4-6 cümleyle özetle. Özet; haberin bağlamını, ana gelişmeyi, teknik veya pratik önemini ve varsa olası etkilerini açıklasın. Yalnızca özeti yaz; başlık, madde işareti, kaynak veya "makale" ifadesi ekleme. Metinde olmayan ayrıntıları uydurma.\nBaşlık: ${story.title}\nMakale metni:\n${sourceTexts[index] || "Makale metni alınamadı; başlıktan güvenli ve temkinli bir özet çıkar."}`);
     } catch { /* keep fallback summary */ }
     return {
       hacker_news_id: story.id,
