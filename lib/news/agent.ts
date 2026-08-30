@@ -77,13 +77,18 @@ export async function fetchAndSummarizeNews(): Promise<Omit<NewsItem, "id" | "cr
   return Promise.all(selected.map(async (story, index) => {
     const articleUrl = story.url || `https://news.ycombinator.com/item?id=${story.id}`;
     let summary = `Bu haber, ${story.title} başlığıyla güncel bir teknoloji gelişmesini ele alıyor. Haberin temel konusu ve olası etkileri hakkında daha fazla bağlam için orijinal makaleyi inceleyebilirsiniz. Ayrıntılar, kaynak makaledeki teknik açıklamalara göre değişebilir.`;
+    let summaryEn = `This story covers a current technology development titled “${story.title}”. See the original article for additional context and technical details.`;
     try {
-      summary = await openAI(`Bu teknoloji haberini Türkçe, tarafsız ve anlaşılır biçimde 80-120 kelime arasında, yaklaşık 4-6 cümleyle özetle. Özet; haberin bağlamını, ana gelişmeyi, teknik veya pratik önemini ve varsa olası etkilerini açıklasın. Yalnızca özeti yaz; başlık, madde işareti, kaynak veya "makale" ifadesi ekleme. Metinde olmayan ayrıntıları uydurma.\nBaşlık: ${story.title}\nMakale metni:\n${sourceTexts[index] || "Makale metni alınamadı; başlıktan güvenli ve temkinli bir özet çıkar."}`);
+      const bilingual = await openAI(`Bu teknoloji haberini iki dilde özetle. Yalnızca geçerli JSON döndür: {"tr":"Türkçe özet", "en":"English summary"}. Her iki özet de 80-120 kelime ve yaklaşık 4-6 cümle olsun; tarafsız, anlaşılır ve haberin bağlamını, ana gelişmesini, teknik/pratik önemini ve varsa etkilerini anlatsın. Başlık, madde işareti, kaynak veya metinde olmayan ayrıntılar ekleme.\nBaşlık: ${story.title}\nMakale metni:\n${sourceTexts[index] || "Makale metni alınamadı; başlıktan güvenli ve temkinli bir özet çıkar."}`);
+      const parsed = JSON.parse(bilingual.match(/\{[\s\S]*\}/)?.[0] || "{}");
+      if (typeof parsed.tr === "string") summary = parsed.tr;
+      if (typeof parsed.en === "string") summaryEn = parsed.en;
     } catch { /* keep fallback summary */ }
     return {
       hacker_news_id: story.id,
       title: story.title,
       summary: summary.trim(),
+      summary_en: summaryEn.trim(),
       published_at: story.time ? new Date(story.time * 1000).toISOString() : null,
       hn_url: `https://news.ycombinator.com/item?id=${story.id}`,
       article_url: articleUrl,
