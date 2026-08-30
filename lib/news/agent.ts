@@ -8,6 +8,12 @@ const topicWeights: Record<string, number> = {
   "machine learning": 8, openai: 8, model: 5, neural: 6, agent: 6,
   robotics: 4, data: 2, software: 1,
 };
+const strongAiTopics = Object.keys(topicWeights).filter((topic) => topic !== "data" && topic !== "software");
+
+function isAiRelevant(title: string) {
+  const lower = title.toLowerCase();
+  return strongAiTopics.some((topic) => lower.includes(topic));
+}
 
 async function hn<T>(path: string): Promise<T> {
   const response = await fetch(`${HN_API}/${path}`, { cache: "no-store" });
@@ -53,19 +59,22 @@ async function openAI(input: string): Promise<string> {
 
 async function aiRank(stories: HackerStory[]): Promise<number[]> {
   try {
-    const prompt = `Aşağıdaki Hacker News başlıklarından AI, LLM, RAG, generative AI ve makine öğrenmesiyle en ilgili 5 tanesini seç. Yalnızca seçtiğin haberlerin ID'lerini JSON dizi olarak döndür (örnek: [123,456]). Genel teknoloji haberlerini ancak AI bağlantısı varsa seç.\n${stories.map((s) => `${s.id}: ${s.title}`).join("\n")}`;
+    const candidates = stories.filter((story) => isAiRelevant(story.title));
+    if (!candidates.length) return [];
+    const prompt = `Aşağıdaki Hacker News başlıklarından doğrudan AI, LLM, RAG, generative AI veya makine öğrenmesiyle ilgili olan en uygun 5 tanesini seç. AI ile açık bağlantısı olmayan haberleri seçme. Yalnızca seçtiğin haberlerin ID'lerini JSON dizi olarak döndür (örnek: [123,456]).\n${candidates.map((s) => `${s.id}: ${s.title}`).join("\n")}`;
     const raw = await openAI(prompt);
     const ids = JSON.parse(raw.match(/\[[\s\S]*?\]/)?.[0] || "[]");
-    const valid = ids.filter((id: unknown): id is number => typeof id === "number" && stories.some((s) => s.id === id));
+    const valid = ids.filter((id: unknown): id is number => typeof id === "number" && candidates.some((s) => s.id === id));
     if (valid.length >= 3) {
       const remaining = [...stories]
         .sort((a, b) => keywordScore(b.title) - keywordScore(a.title) || (b.score ?? 0) - (a.score ?? 0))
+        .filter((story) => isAiRelevant(story.title))
         .filter((story) => !valid.includes(story.id))
         .map((story) => story.id);
       return [...valid, ...remaining].slice(0, 5);
     }
   } catch { /* deterministic fallback below */ }
-  return [...stories].sort((a, b) => keywordScore(b.title) - keywordScore(a.title) || (b.score ?? 0) - (a.score ?? 0)).slice(0, 5).map((s) => s.id);
+  return [...stories].filter((story) => isAiRelevant(story.title)).sort((a, b) => keywordScore(b.title) - keywordScore(a.title) || (b.score ?? 0) - (a.score ?? 0)).slice(0, 5).map((s) => s.id);
 }
 
 export async function fetchAndSummarizeNews(): Promise<Omit<NewsItem, "id" | "created_at">[]> {

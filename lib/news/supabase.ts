@@ -37,6 +37,11 @@ export async function upsertNews(items: Omit<NewsItem, "id" | "created_at">[]) {
   });
 }
 
+export async function replaceNews(items: Omit<NewsItem, "id" | "created_at">[]) {
+  await request("news?id=not.is.null", { method: "DELETE" });
+  await upsertNews(items);
+}
+
 export async function trimNews(limit = 10) {
   const all = await getLatestNews(100);
   const old = all.slice(limit);

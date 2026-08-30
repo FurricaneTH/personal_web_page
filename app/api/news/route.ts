@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { fetchAndSummarizeNews } from "@/lib/news/agent";
-import { getLatestNews, trimNews, upsertNews } from "@/lib/news/supabase";
+import { getLatestNews, replaceNews, trimNews } from "@/lib/news/supabase";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -21,7 +21,7 @@ export async function POST() {
     const provided = (await headers()).get("x-news-refresh-token");
     if (!expected || provided !== expected) return NextResponse.json({ error: "Yetkisiz istek." }, { status: 401 });
     const items = await fetchAndSummarizeNews();
-    await upsertNews(items);
+    await replaceNews(items);
     await trimNews(10);
     return NextResponse.json(await getLatestNews());
   } catch (error) {
