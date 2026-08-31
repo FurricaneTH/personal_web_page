@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Furkan Çatak — Personal Portfolio
 
-## Getting Started
+Personal portfolio website for Furkan Çatak, a computer engineering student interested in artificial intelligence, data analysis, LLM/RAG systems, and practical software development.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router)
+- React and TypeScript
+- Tailwind CSS
+- Supabase (news storage)
+- Hacker News API
+- OpenAI Responses API (server-side summaries)
+- Vercel deployment
+
+## Features
+
+- Responsive personal portfolio with Home, About, Projects, Experience, and Contact sections
+- Turkish and English language switcher
+- Light and dark themes with smooth transitions
+- Turkish and English CV downloads
+- GitHub, LinkedIn, and email links
+- Custom logo, favicon, and subtle brand-inspired background elements
+- AI-focused Hacker News digest
+- Separate news list and article detail pages
+- Protected news management page for triggering refreshes
+
+## News workflow
+
+The public news page is available at `/news`. Visitors can browse the latest ten stored stories and open each title to read its full summary at `/news/[id]`.
+
+The private management page is available at `/news/manage`. It requires the `NEWS_REFRESH_TOKEN` and is intended only for the site owner.
+
+When a refresh is triggered, the server:
+
+1. Reads the first 30 Hacker News stories.
+2. Prioritizes stories directly related to AI, LLMs, RAG, generative AI, machine learning, agents, and related developments.
+3. Avoids unrelated stories and selects the five strongest matches.
+4. Fetches the original article content where available.
+5. Generates adaptive, educational Turkish and English summaries, omitting filler and explaining important context and terminology when useful.
+6. Stores the results in Supabase and keeps only the latest ten stories.
+
+OpenAI and Supabase secret keys are used only in server-side code. They are never exposed to the browser.
+
+## Local development
+
+Install dependencies and start the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Useful checks:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+```
 
-## Learn More
+## Supabase setup
 
-To learn more about Next.js, take a look at the following resources:
+1. Create a Supabase project.
+2. Open **SQL Editor**.
+3. Run the contents of [`supabase/schema.sql`](./supabase/schema.sql).
+4. If the project was created before bilingual summaries were added, also run:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sql
+alter table public.news
+add column if not exists summary_en text;
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The schema creates the `news` table, its timestamp index, and enables Row Level Security. The application accesses the table through the server-side service-role key.
 
-## Deploy on Vercel
+## Environment variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Create a `.env.local` file for local development or add these variables in Vercel Project Settings → Environment Variables:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-5.6-luna
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEWS_REFRESH_TOKEN=your_private_refresh_token
+```
+
+Never commit `.env.local` or expose `OPENAI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, or `NEWS_REFRESH_TOKEN` in client-side code.
+
+## Deployment
+
+The project is connected to GitHub and Vercel. Pushes to the `main` branch trigger a production deployment automatically.
+
+```bash
+git add .
+git commit -m "Describe your change"
+git push origin main
+```
+
+Production site: [furkancatak.com](https://furkancatak.com)
+
+## Project structure
+
+```text
+app/
+  api/news/       # Server-side news API
+  news/           # Public news page, detail pages, and management page
+components/      # Portfolio UI and shared providers
+lib/news/         # Hacker News agent and Supabase REST helpers
+supabase/         # Database schema
+public/           # Logo, favicon, CV files, and static assets
+```
