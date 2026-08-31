@@ -9,9 +9,6 @@ export default function Footer() {
         <p className="text-xs text-gray-700">
           © {new Date().getFullYear()} Furkan Çatak
         </p>
-        <p className="text-xs text-gray-800">
-          {language === "tr" ? "Next.js · Tailwind CSS" : "Next.js · Tailwind CSS"}
-        </p>
       </div>
     </footer>
   );
